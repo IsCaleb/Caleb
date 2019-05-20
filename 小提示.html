@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>小提示</title>
+		<link href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="tishi.css"/>
+		<script src="vue.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-6 col-sm-8 col-md-offset-3 col-sm-offset-2">
+						<div class="panel panel-info">
+							<div class="panel-heading">
+								<h2 class="text-center">亲爱的主人你有{{num}}件事待完成</h2>
+								<input type="text" class="form-control" v-model="title" @keyup.enter="addlist" placeholder="请输入待办事项">
+							</div>
+							<div class="panel-body">
+								<ul class="list-group">
+									<li class="list-group-item" v-for="(item,index) in fillist" @dblclick="con=item">
+										<input type="text" v-show="con==item" v-focus="con==item" v-model="item.title" @keyup.enter="con=null" @blur="con=null">
+										<span v-show="con!==item">
+											<input type="checkbox" v-model="item.selected"> 
+											<span style="vertical-align: top;" :class="{sevt:item.selected}">{{item.title}}</span>
+										</span>
+										<button class="btn btn-xs btn-danger pull-right" @click="del(item)">&bigotimes;</button>
+									</li>
+								</ul>
+							</div>
+							<div class="panel-footer">
+								<ul class="nav nav-pills">
+									<li role="presentation" :class="{active:hash=='all'}"><a href="#/all">全部事项</a></li>
+									<li role="presentation" :class="{active:hash=='fish'}"><a href="#/fish">已完成</a></li>
+									<li role="presentation" :class="{active:hash=='unfish'}"><a href="#/unfish">未完成</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		<script>
+			var ev=new Vue({
+				el:'#app',
+				data:{
+					list:[{
+							title:"毕业典礼",
+							selected:false
+						},
+						{
+							title:"毕业证书",
+							selected:false
+						},
+						{
+							title:"实习报告",
+							selected:true
+						},
+						{
+							title:"同学聚会",
+							selected:false
+						},
+						{
+							title:"社团聚餐",
+							selected:false
+						}
+						],
+						title:'',
+						con:'',//记录双击的数据
+						hash:''//记录window下的hash值
+				},
+				methods:{
+					addlist(){
+						this.list.unshift({title:this.title,selected:false});
+						this.title="";
+					},
+					del(n){
+						this.list=this.list.filter(val=>val!=n);
+						//this.list.splice(n,1)
+					}
+				},
+				computed:{
+					num(){
+						return this.list.filter(item=>!item.selected).length;
+					},
+					fillist(){
+						//依赖hash
+						//记录在本地存储 localStorage
+						//存储的是字符串
+						//JSON.stringify转变为字符串
+						localStorage.setItem('listen',JSON.stringify(this.list))
+						if(this.hash=='all') return this.list;
+						if(this.hash=='fish') return this.list.filter(item=>item.selected);
+						if(this.hash=='unfish') return this.list.filter(item=>!item.selected)
+					}
+				},
+				directives:{
+					focus(el,bind){
+						// console.log(el)
+						// console.log(bind)
+						if(bind.value){
+							el.focus();
+						}
+					}
+				},
+				created(){
+					//给list赋值 从缓存中获取出来
+					if(localStorage.getItem('listen')){
+						//JSON.parse转变为对象
+						this.list=JSON.parse(localStorage.getItem('listen'));
+					}
+					this.hash=location.hash.split('/')[1]||'unfish';
+					window.addEventListener("hashchange",()=>{
+						//获取hash值
+						//console.log(location.hash)
+						this.hash=location.hash.split('/')[1];
+					})
+				}
+			})
+		</script>
+	</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>购物车</title>
+		<script src="./vue.js"></script>
+		<link href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+	</head>
+	<body>
+		<div id="dv">
+			<div class="container">
+				<div class="row">
+					<table class="table table-bordered table-striped">
+						<caption style="caption-side: top; margin-bottom: 20px;" class="h1 text-danger text-center">购物车</caption>
+						<tr>
+							<th>全选 <input type="checkbox" v-model="isall"></th>
+							<th>商品</th>
+							<th>单价</th>
+							<th>数量</th>
+							<th>小计</th>
+							<th>操作</th>
+						</tr>
+						<tr v-for="(item,index) in pro">
+							<td><input type="checkbox" v-model="item.st"></td>
+							<td><img :src="item.Cover" alt="加载失败"> <span style="font-size: 18px; font-weight: 600;padding-left: 10px;">{{item.name}}</span></td>
+							<td>¥{{item.price}}</td>
+							<td><input type="number" v-model="item.num"/></td>
+							<td>¥{{item.price*item.num|lv}}</td>
+							<td><button class="btn btn-danger" @click="del(index)">删除</button></td>
+						</tr>
+						<tr>
+							<td colspan="6" >总价额: ¥{{sum|lv}}</td>
+						</tr>
+					</table>
+				</div>
+				
+				
+				
+				
+				
+			</div>
+		</div>
+		<script>
+			var vm=new Vue({
+				el:"#dv",
+				data:{
+					 pro:[
+						{st:true,Cover:"./img/df1.jpeg",name:"苹果6s",price:1600,num:1},
+						{st:false,Cover:"./img/df2.jpeg",name:"机械革命笔记本",price:6800,num:1},
+						{st:false,Cover:"./img/df3.jpeg",name:"联想笔记本",price:5300,num:1},
+						{st:false,Cover:"./img/df4.jpeg",name:"炫龙笔记本",price:5800,num:1}
+					],
+				},
+				methods:{
+					
+					del(n){
+						this.pro.splice(n,1)
+					}
+					
+				},
+				filters:{
+					lv(liu){
+						return Number(liu).toFixed(2);
+					}
+				},
+				computed:{
+					//只要依赖的值发生改变就会重新计算自己的值
+					//如果依赖值没有初始化 那么就没有get或set
+					//计算属性可以没有set但不能没有get
+					//v-model绑定的计算属性有get和set
+					//其他的一般只有get
+					isall:{
+						get(){
+							this.isall=this.pro.every(item=>item.st)
+						},
+						set(vn){
+							this.pro.forEach((item)=>{
+								item.st=vn
+							})
+						}
+					},
+					sum:{
+						get(){
+							let zongjia=null;
+							this.pro.forEach((item)=>{
+								zongjia+=item.st?item.price*item.num:0; 
+							})
+							return zongjia
+						}
+					}
+				}
+			})
+		</script>
+	</body>
+</html>
